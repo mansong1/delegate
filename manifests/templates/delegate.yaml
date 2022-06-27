@@ -86,7 +86,7 @@ spec:
         - name: JAVA_OPTS
           value: "-Xms64M"
         - name: ACCOUNT_ID
-          value: BKB_Vic2RbWnsMSUAWTgXw
+          value: {{.Values.accountID}}
         - name: MANAGER_HOST_AND_PORT
           value: https://app.harness.io/gratis
         - name: DEPLOY_MODE
