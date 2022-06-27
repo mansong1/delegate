@@ -1,0 +1,4 @@
+replicas: 4
+image: <+artifact.image>
+createNamespace: true
+namespace: harness-delegate-ng
