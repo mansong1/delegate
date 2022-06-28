@@ -10,3 +10,4 @@ RUN TERRAFORM_VERSIONS="1.2.1 1.2.2 1.2.3" \
     sh -c "for version in \$TERRAFORM_VERSIONS; do tfenv install \$version; done" \
     echo 1.2.3 > ~/.tfenv/version
 RUN npm install -g serverless@3.19.0
+RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
