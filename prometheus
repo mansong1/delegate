@@ -1,0 +1,5 @@
+- job_name: 'delegate-metrics'
+  scrape_interval: 1s
+  metrics_path: /api/metrics
+  static_configs:
+    - targets: ['delegate-service.harness-delegate-ng.svc.cluster.local']
