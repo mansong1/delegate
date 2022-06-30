@@ -1,8 +1,11 @@
 FROM harness/delegate-immutable:22.06.75511
 LABEL maintainer="martin.ansong@harness.io"
 USER root
+ENV NODEJS_VERSION=14
+RUN echo -e "[nodejs]\nname=nodejs\nstream=${NODEJS_VERSION}\nprofiles=\nstate=enabled\n" > /etc/dnf/modules.d/nodejs.module
 RUN microdnf -y update
-RUN microdnf install sudo curl git unzip nodejs && \
+RUN microdnf install sudo curl git unzip nodejs npm && \
+    microdnf remove nodejs-full-i18n nodejs-docs && \
     microdnf clean all
 RUN git clone https://github.com/tfutils/tfenv.git ~/.tfenv && \
     ln -s ~/.tfenv/bin/* /usr/bin
