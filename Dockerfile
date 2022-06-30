@@ -4,7 +4,7 @@ USER root
 ENV NODEJS_VERSION=14
 RUN echo -e "[nodejs]\nname=nodejs\nstream=${NODEJS_VERSION}\nprofiles=\nstate=enabled\n" > /etc/dnf/modules.d/nodejs.module
 RUN microdnf -y update
-RUN microdnf install sudo curl git unzip nodejs npm && \
+RUN microdnf install sudo curl git unzip nodejs npm tar && \
     microdnf remove nodejs-full-i18n nodejs-docs && \
     microdnf clean all
 RUN git clone https://github.com/tfutils/tfenv.git ~/.tfenv && \
@@ -17,3 +17,6 @@ RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/s
     chmod +x kubectl && \
     mkdir -p ~/.local/bin && \
     mv ./kubectl ~/.local/bin/kubectl
+RUN curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 && \
+    chmod +x get_helm.sh && \
+    ./get_helm.sh
