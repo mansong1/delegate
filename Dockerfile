@@ -1,4 +1,4 @@
-FROM harness/delegate-immutable:22.06.75514
+FROM harness/delegate-immutable:22.07.75915
 LABEL maintainer="martin.ansong@harness.io"
 USER root
 ENV NODEJS_VERSION=14
@@ -12,7 +12,7 @@ RUN git clone https://github.com/tfutils/tfenv.git ~/.tfenv && \
 RUN TERRAFORM_VERSIONS="1.2.1 1.2.2 1.2.3" \
     sh -c "for version in \$TERRAFORM_VERSIONS; do tfenv install \$version; done" \
     echo 1.2.3 > ~/.tfenv/version
-RUN npm install -g serverless@3.19.0
+RUN npm install -g serverless@3.20.0
 RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" && \
     chmod +x kubectl && \
     mkdir -p ~/.local/bin && \
