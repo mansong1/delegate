@@ -1,4 +1,4 @@
-FROM harness/delegate-immutable:22.07.75829
+FROM harness/delegate-immutable:22.07.75831
 LABEL maintainer="martin.ansong@harness.io"
 USER root
 ENV NODEJS_VERSION=14
