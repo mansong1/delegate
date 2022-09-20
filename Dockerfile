@@ -1,4 +1,5 @@
-FROM harness/delegate-immutable:22.07.75831
+ARG BASE_DOCKER_TAG
+FROM harness/delegate-immutable:${BASE_DOCKER_TAG}
 LABEL maintainer="martin.ansong@harness.io"
 USER root
 ENV NODEJS_VERSION=14
