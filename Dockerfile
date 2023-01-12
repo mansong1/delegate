@@ -1,5 +1,5 @@
-ARG BASE_DOCKER_TAG
-FROM harness/delegate-immutable:${BASE_DOCKER_TAG}
+ARG BASE_IMAGE_TAG
+FROM harness/delegate-immutable:${BASE_IMAGE_TAG}
 LABEL image.authors="martin.ansong@harness.io"
 
 # ============================================
@@ -11,8 +11,8 @@ LABEL image.authors="martin.ansong@harness.io"
 # Operating system packages must be installed as root.
 
 USER root:root
-ENV PACKAGES="sudo git wget unzip tar python3 jq which"
-ENV KUBECTL_VERSION="v1.23.13"
+ENV PACKAGES="sudo git wget unzip tar python38 jq which"
+ENV KUBECTL_VERSION="v1.25.2"
 RUN microdnf update \
     && microdnf install --nodocs \
     ${PACKAGES} \
@@ -37,8 +37,8 @@ RUN curl https://sdk.cloud.google.com > install.sh \
     && . /usr/local/google-cloud-sdk/path.bash.inc \
     && rm -rf install.sh
 
-RUN pip3 install --upgrade pip \
-    && pip3 --no-cache-dir install --pre azure-cli
+RUN pip3.8 install --upgrade pip \
+    && pip3.8 --no-cache-dir install --pre azure-cli
 
 RUN git clone --depth=1 https://github.com/tfutils/tfenv.git ~/.tfenv \
     && echo 1.1.3 > ~/.tfenv/version \
@@ -52,8 +52,3 @@ RUN mkdir -m 777 -p /client-tools/kubectl/${KUBECTL_VERSION} \
     && ln -s /client-tools/kubectl/${KUBECTL_VERSION}/kubectl /usr/local/bin/kubectl
 
 ENV PATH=/opt/harness-delegate/client-tools/:$PATH
-
-# ============================================
-# change from build user to runtime user
-# ============================================
-USER harness:harness
