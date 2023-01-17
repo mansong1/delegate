@@ -1,5 +1,5 @@
 ARG BASE_IMAGE_TAG
-FROM harness/delegate-immutable:${BASE_IMAGE_TAG}
+FROM harness/delegate:${BASE_IMAGE_TAG}
 LABEL image.authors="martin.ansong@harness.io"
 
 # ============================================
