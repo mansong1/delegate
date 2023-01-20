@@ -12,7 +12,7 @@ LABEL image.authors="martin.ansong@harness.io"
 
 USER root:root
 ENV PACKAGES="sudo git wget unzip tar python38 jq which"
-ENV KUBECTL_VERSION="v1.25.2"
+ENV KUBECTL_VERSION="v1.26.1"
 RUN microdnf update \
     && microdnf install --nodocs \
     ${PACKAGES} \
