@@ -46,6 +46,9 @@ RUN git clone --depth=1 https://github.com/tfutils/tfenv.git ~/.tfenv \
     && tfenv install 1.1.3 \
     && tfenv install 1.3.3
 
+RUN curl -L https://raw.githubusercontent.com/warrensbox/tgswitch/release/install.sh | bash \
+    && ln -s ~/.tgswitch/bin/* /usr/local/bin
+
 RUN mkdir -m 777 -p /client-tools/kubectl/${KUBECTL_VERSION} \
     && curl -L https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl -o /client-tools/kubectl/${KUBECTL_VERSION}/kubectl \
     && chmod +x /client-tools/kubectl/${KUBECTL_VERSION}/kubectl \
