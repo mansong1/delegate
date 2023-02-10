@@ -106,6 +106,8 @@ pipeline:
           runtime:
             type: Cloud
             spec: {}
+          service:
+            serviceRef: ""
         variables:
           - name: TARGET_REPO
             type: String
