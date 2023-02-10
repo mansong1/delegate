@@ -43,8 +43,7 @@ RUN pip3.8 install --upgrade pip \
 RUN git clone --depth=1 https://github.com/tfutils/tfenv.git ~/.tfenv \
     && echo 1.1.3 > ~/.tfenv/version \
     && ln -s ~/.tfenv/bin/* /usr/local/bin \
-    && tfenv install 1.1.3 \
-    && tfenv install 1.3.3
+    && tfenv install 1.3.8
 
 RUN curl -L https://raw.githubusercontent.com/warrensbox/tgswitch/release/install.sh | bash \
     && ln -s ~/.tgswitch/bin/* /usr/local/bin
