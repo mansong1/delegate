@@ -187,7 +187,7 @@ pipeline:
                             spec: {}
                           spec:
                             sensitivity: MEDIUM
-                            duration: 10m
+                            duration: 5m
                             deploymentTag: <+serviceConfig.artifacts.primary.tag>
                         timeout: 2h
                         failureStrategies:
