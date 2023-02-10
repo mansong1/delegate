@@ -160,24 +160,6 @@ pipeline:
             allowSimultaneousDeployments: false
           execution:
             steps:
-              - step:
-                  type: ShellScript
-                  name: Echo
-                  identifier: Echo
-                  spec:
-                    shell: Bash
-                    onDelegate: true
-                    source:
-                      type: Inline
-                      spec:
-                        script: echo $GCP_SOMEVAR
-                    environmentVariables:
-                      - name: GCP_SOMEVAR
-                        type: String
-                        value: <+stage.variables.GCP_SOMEVAR>
-                    outputVariables: []
-                    executionTarget: {}
-                  timeout: 10m
               - stepGroup:
                   name: Canary Deployment
                   identifier: canaryDepoyment
