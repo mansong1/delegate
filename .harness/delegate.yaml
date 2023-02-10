@@ -83,6 +83,17 @@ pipeline:
                         stageStatus: Success
                       failureStrategies: []
               - step:
+                  type: Security
+                  name: Grype
+                  identifier: Grype
+                  spec:
+                    privileged: true
+                    settings:
+                      policy_type: orchestratedScan
+                      scan_type: repository
+                      product_name: grype
+                      product_config_name: default
+              - step:
                   type: Run
                   name: Build and Push
                   identifier: Push_Image
