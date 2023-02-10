@@ -1,0 +1,274 @@
+pipeline:
+  name: delegate
+  identifier: delegate
+  projectIdentifier: Delegate
+  orgIdentifier: default
+  tags: {}
+  properties:
+    ci:
+      codebase:
+        connectorRef: account.Github
+        repoName: delegate
+        build: <+input>
+  stages:
+    - stage:
+        name: Build
+        identifier: Build
+        type: CI
+        spec:
+          cloneCodebase: true
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: Set Tag
+                  identifier: SetTag
+                  spec:
+                    shell: Bash
+                    command: |+
+                      # Set the repository owner and name.
+                      owner="harness"
+                      repo="delegate"
+
+                      # Build the request URL.
+                      url="https://registry.hub.docker.com/v2/repositories/${owner}/${repo}/tags"
+
+                      # Send the GET request and store the response.
+                      response=$(curl -s "${url}")
+
+                      # Parse the response to extract the latest tag.
+                      # export latest_tag=$(echo "${response}" | jq -r '.results[] | select(.name | contains("minimal") | not) | .name' | head -n 1)
+                      latest_tag=$(echo "${response}" | jq -r '.results[0].name')
+
+                    outputVariables:
+                      - name: latest_tag
+              - step:
+                  type: Run
+                  name: Build Image
+                  identifier: Build_Image
+                  spec:
+                    connectorRef: account.harnessImage
+                    image: docker:latest
+                    shell: Sh
+                    command: docker build . -t delegate:local --build-arg BASE_IMAGE_TAG=<+pipeline.stages.Build.spec.execution.steps.SetTag.output.outputVariables.latest_tag>
+              - parallel:
+                  - step:
+                      type: Run
+                      name: Generate SBOM
+                      identifier: Generate_SBOM
+                      spec:
+                        connectorRef: account.harnessImage
+                        image: alpine:latest
+                        shell: Sh
+                        command: |-
+                          apk --no-cache add curl
+                          curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b .
+                          ./syft delegate:local -o github
+                  - step:
+                      type: Security
+                      name: Aqua
+                      identifier: Aqua
+                      spec:
+                        privileged: true
+                        settings:
+                          policy_type: orchestratedScan
+                          scan_type: container
+                          product_name: aqua-trivy
+                          product_config_name: aqua-trivy
+                          container_type: local_image
+                          container_domain: docker.io
+                          container_project: delegate
+                          container_tag: local
+                      when:
+                        stageStatus: Success
+                      failureStrategies: []
+              - step:
+                  type: Run
+                  name: Build and Push
+                  identifier: Push_Image
+                  spec:
+                    connectorRef: org.Dockerhub
+                    image: docker:dind
+                    shell: Sh
+                    command: |-
+                      docker login -u mansong -p <+secrets.getValue("account.dockerpwd")>
+                      docker build . -t <+stage.variables.TARGET_REPO>:<+pipeline.stages.Build.spec.execution.steps.SetTag.output.outputVariables.latest_tag> --build-arg BASE_IMAGE_TAG=<+pipeline.stages.Build.spec.execution.steps.SetTag.output.outputVariables.latest_tag>
+                      docker push <+stage.variables.TARGET_REPO>:<+pipeline.stages.Build.spec.execution.steps.SetTag.output.outputVariables.latest_tag>
+                  when:
+                    stageStatus: Success
+                  failureStrategies: []
+          sharedPaths:
+            - /var/run
+            - /var/lib
+          platform:
+            os: Linux
+            arch: Amd64
+          runtime:
+            type: Cloud
+            spec: {}
+        variables:
+          - name: TARGET_REPO
+            type: String
+            value: mansong/delegate
+        when:
+          pipelineStatus: Success
+    - stage:
+        name: Deploy
+        identifier: Deploy
+        description: ""
+        type: Deployment
+        spec:
+          serviceConfig:
+            serviceRef: choasdelegate
+            serviceDefinition:
+              spec:
+                variables: []
+                manifests:
+                  - manifest:
+                      identifier: delegate
+                      type: K8sManifest
+                      spec:
+                        store:
+                          type: Github
+                          spec:
+                            connectorRef: account.Github
+                            gitFetchType: Branch
+                            paths:
+                              - manifests/templates/
+                            repoName: delegate
+                            branch: main
+                        valuesPaths:
+                          - manifests/values.yaml
+                        skipResourceVersioning: false
+                artifacts:
+                  primary:
+                    spec:
+                      connectorRef: org.Dockerhub
+                      imagePath: mansong/delegate
+                      tag: <+pipeline.stages.Build.spec.execution.steps.setTag.output.outputVariables.TAG>
+                    type: DockerRegistry
+                  sidecars: []
+              type: Kubernetes
+          infrastructure:
+            environmentRef: prod
+            infrastructureDefinition:
+              type: KubernetesDirect
+              spec:
+                connectorRef: account.GKE
+                namespace: default
+                releaseName: release-<+INFRA_KEY>
+            allowSimultaneousDeployments: false
+          execution:
+            steps:
+              - step:
+                  type: ShellScript
+                  name: Echo
+                  identifier: Echo
+                  spec:
+                    shell: Bash
+                    onDelegate: true
+                    source:
+                      type: Inline
+                      spec:
+                        script: echo $GCP_SOMEVAR
+                    environmentVariables:
+                      - name: GCP_SOMEVAR
+                        type: String
+                        value: <+stage.variables.GCP_SOMEVAR>
+                    outputVariables: []
+                    executionTarget: {}
+                  timeout: 10m
+              - stepGroup:
+                  name: Canary Deployment
+                  identifier: canaryDepoyment
+                  steps:
+                    - step:
+                        name: Canary Deployment
+                        identifier: canaryDeployment
+                        type: K8sCanaryDeploy
+                        timeout: 10m
+                        spec:
+                          instanceSelection:
+                            type: Count
+                            spec:
+                              count: 1
+                          skipDryRun: false
+                        failureStrategies: []
+                    - step:
+                        type: Verify
+                        name: Verify
+                        identifier: Verify
+                        spec:
+                          type: Canary
+                          monitoredService:
+                            type: Default
+                            spec: {}
+                          spec:
+                            sensitivity: MEDIUM
+                            duration: 10m
+                            deploymentTag: <+serviceConfig.artifacts.primary.tag>
+                        timeout: 2h
+                        failureStrategies:
+                          - onFailure:
+                              errors:
+                                - Verification
+                              action:
+                                type: ManualIntervention
+                                spec:
+                                  timeout: 2h
+                                  onTimeout:
+                                    action:
+                                      type: StageRollback
+                          - onFailure:
+                              errors:
+                                - Unknown
+                              action:
+                                type: ManualIntervention
+                                spec:
+                                  timeout: 2h
+                                  onTimeout:
+                                    action:
+                                      type: Ignore
+                    - step:
+                        name: Canary Delete
+                        identifier: canaryDelete
+                        type: K8sCanaryDelete
+                        timeout: 10m
+                        spec:
+                          skipDryRun: false
+              - stepGroup:
+                  name: Primary Deployment
+                  identifier: primaryDepoyment
+                  steps:
+                    - step:
+                        name: Rolling Deployment
+                        identifier: rollingDeployment
+                        type: K8sRollingDeploy
+                        timeout: 10m
+                        spec:
+                          skipDryRun: false
+            rollbackSteps:
+              - step:
+                  name: Canary Delete
+                  identifier: rollbackCanaryDelete
+                  type: K8sCanaryDelete
+                  timeout: 10m
+                  spec: {}
+              - step:
+                  name: Rolling Rollback
+                  identifier: rollingRollback
+                  type: K8sRollingRollback
+                  timeout: 10m
+                  spec: {}
+        tags: {}
+        failureStrategies:
+          - onFailure:
+              errors:
+                - AllErrors
+              action:
+                type: StageRollback
+        when:
+          pipelineStatus: Success
+          condition: "false"
+        variables: []
+  allowStageExecutions: true
