@@ -82,21 +82,21 @@ pipeline:
                       when:
                         stageStatus: Success
                       failureStrategies: []
-              - step:
-                  type: Security
-                  name: Grype
-                  identifier: Grype
-                  spec:
-                    privileged: true
-                    settings:
-                      policy_type: orchestratedScan
-                      scan_type: repository
-                      product_name: grype
-                      product_config_name: default
-                      container_type: local_image
-                      container_domain: docker.io
-                      container_project: delegate
-                      container_tag: local
+                  - step:
+                      type: Security
+                      name: Grype
+                      identifier: Grype
+                      spec:
+                        privileged: true
+                        settings:
+                          policy_type: orchestratedScan
+                          scan_type: container
+                          product_name: grype
+                          product_config_name: default
+                          container_type: local_image
+                          container_domain: docker.io
+                          container_project: delegate
+                          container_tag: local
               - step:
                   type: Run
                   name: Build and Push
