@@ -48,7 +48,7 @@ pipeline:
                   identifier: Build_Image
                   spec:
                     shell: Sh
-                    command: docker build . -t delegate:local --build-arg BASE_IMAGE_TAG=<+pipeline.stages.Build.spec.execution.steps.SetTag.output.outputVariables.latest_tag> --load
+                    command: docker build . -t delegate:local --build-arg BASE_IMAGE_TAG=<+pipeline.stages.Build.spec.execution.steps.SetTag.output.outputVariables.latest_tag>
               - parallel:
                   - step:
                       type: Run
