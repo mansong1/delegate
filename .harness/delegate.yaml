@@ -50,7 +50,7 @@ pipeline:
                     connectorRef: account.harnessImage
                     image: docker:latest
                     shell: Sh
-                    command: docker build . -t delegate:local --build-arg BASE_IMAGE_TAG=<+pipeline.stages.Build.spec.execution.steps.SetTag.output.outputVariables.latest_tag>
+                    command: docker build . -t delegate:local --build-arg BASE_IMAGE_TAG=<+pipeline.stages.Build.spec.execution.steps.SetTag.output.outputVariables.latest_tag> --load
               - parallel:
                   - step:
                       type: Run
