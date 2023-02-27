@@ -37,8 +37,7 @@ pipeline:
                       response=$(curl -s "${url}")
 
                       # Parse the response to extract the latest tag.
-                      #latest_tag=$(echo "${response}" | jq -r '.results[] | select(.name | contains("minimal") | not) | .name' | head -n 1)
-                      latest_tag=$(echo "${response}" | jq -r '.results[0].name')
+                      latest_tag=$(echo "${response}" | jq -r '.results[] | select(.name | contains("minimal") ) | .name' | head -n 1)
 
                     outputVariables:
                       - name: latest_tag
