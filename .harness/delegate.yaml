@@ -35,9 +35,10 @@ pipeline:
 
                       # Send the GET request and store the response.
                       response=$(curl -s "${url}")
+                      datePrefix=$(date '+%y.%m')
 
                       # Parse the response to extract the latest tag.
-                      latest_tag=$(echo "${response}" | jq -r '.results[] | select(.name | contains("minimal") ) | .name' | head -n 1)
+                      latest_tag=$(echo "${response}" | jq -r --arg datePrefix "$datePrefix" '.results[] | select(.name | contains("minimal") and contains($datePrefix) ) | .name' | head -n 1)
 
                     outputVariables:
                       - name: latest_tag
