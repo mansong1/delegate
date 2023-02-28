@@ -50,7 +50,9 @@ template:
                   name: Check DiND
                   identifier: Check_DiND
                   spec:
-                    shell: Sh
+                    connectorRef: <+stage.variables.CONTAINER_REGISTRY>
+                    image: bash:latest
+                    shell: Bash
                     command: |-
                       while ! docker ps;
                           do
