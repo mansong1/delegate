@@ -51,7 +51,7 @@ template:
                   identifier: Check_DiND
                   spec:
                     connectorRef: <+stage.variables.CONTAINER_CONNECTOR_REF>
-                    image: bash:latest
+                    image: docker:dind
                     shell: Bash
                     command: |-
                       while ! docker ps;
