@@ -62,6 +62,8 @@ template:
               name: Build Image
               identifier: Build_Image
               spec:
+                connectorRef: <+input>
+                image: docker:dind
                 shell: Sh
                 command: docker build . -t delegate:local --build-arg BASE_IMAGE_TAG=$BASE_IMAGE_TAG
                 envVariables:
