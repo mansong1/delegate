@@ -20,6 +20,14 @@ pipeline:
           execution:
             steps:
               - step:
+                  type: Background
+                  name: DiND
+                  identifier: DiND
+                  spec:
+                    connectorRef: account.harnessImage
+                    image: docker:dind
+                    shell: Sh
+              - step:
                   type: Run
                   name: Set Tag
                   identifier: SetTag
