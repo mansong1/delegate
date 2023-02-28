@@ -147,7 +147,7 @@ template:
       - name: TARGET_REPO
         type: String
         value: <+input>
-      - name: CONTAINER_REGISTRY
+      - name: CONTAINER_CONNECTOR_REF
         type: String
         description: ""
         value: <+input>
