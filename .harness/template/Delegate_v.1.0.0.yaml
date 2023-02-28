@@ -52,7 +52,7 @@ template:
                   spec:
                     connectorRef: <+stage.variables.CONTAINER_CONNECTOR_REF>
                     image: docker:dind
-                    shell: Bash
+                    shell: Sh
                     command: |-
                       while ! docker ps;
                           do
