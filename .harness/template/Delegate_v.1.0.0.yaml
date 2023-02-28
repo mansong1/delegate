@@ -14,7 +14,7 @@ template:
               name: DiND
               identifier: DiND
               spec:
-                connectorRef: account.harnessImage
+                connectorRef: <+stage.variables.CONTAINER_REGISTRY>
                 image: docker:dind
                 shell: Sh
           - parallel:
