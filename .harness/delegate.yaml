@@ -106,9 +106,14 @@ pipeline:
                     image: docker:dind
                     shell: Sh
                     command: |-
-                      docker login -u mansong -p $PASSWORD <+secrets.getValue("account.dockerpwd")>
-                      docker build . -t $TARGET_REPO:$TAG <+stage.variables.TARGET_REPO>:<+pipeline.stages.Build.spec.execution.steps.SetTag.output.outputVariables.latest_tag> --build-arg BASE_IMAGE_TAG=$BASE_IMAGE_TAG <+pipeline.stages.Build.spec.execution.steps.SetTag.output.outputVariables.latest_tag>
-                      docker push $TARGET_REPO:$TAG <+stage.variables.TARGET_REPO>:<+pipeline.stages.Build.spec.execution.steps.SetTag.output.outputVariables.latest_tag>
+                      docker login -u mansong -p $PASSWORD
+                      docker build . -t $TARGET_REPO:$TAG --build-arg BASE_IMAGE_TAG=$BASE_IMAGE_TAG
+                      docker push $TARGET_REPO:$TAG
+                    envVariables:
+                      PASSWORD: <+secrets.getValue("account.dockerpwd")>
+                      TARGET_REPO: <+stage.variables.TARGET_REPO>
+                      TAG: <+pipeline.stages.Build.spec.execution.steps.SetTag.output.outputVariables.latest_tag>
+                      BASE_IMAGE_TAG: <+pipeline.stages.Build.spec.execution.steps.SetTag.output.outputVariables.latest_tag>
                   when:
                     stageStatus: Success
                   failureStrategies: []
