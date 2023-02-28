@@ -62,7 +62,7 @@ template:
               name: Build Image
               identifier: Build_Image
               spec:
-                connectorRef: <+input>
+                connectorRef: <+stage.variables.CONTAINER_REGISTRY>
                 image: docker:dind
                 shell: Sh
                 command: docker build . -t delegate:local --build-arg BASE_IMAGE_TAG=$BASE_IMAGE_TAG
@@ -74,7 +74,7 @@ template:
                   name: Generate SBOM
                   identifier: Generate_SBOM
                   spec:
-                    connectorRef: account.harnessImage
+                    connectorRef: <+stage.variables.CONTAINER_REGISTRY>
                     image: alpine:latest
                     shell: Sh
                     command: |-
