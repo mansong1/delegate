@@ -149,7 +149,7 @@ template:
     variables:
       - name: TARGET_REPO
         type: String
-        value: mansong/delegate
+        value: <+input>
       - name: CONTAINER_REGISTRY
         type: String
         description: ""
