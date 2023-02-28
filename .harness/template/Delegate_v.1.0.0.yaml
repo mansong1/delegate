@@ -28,8 +28,8 @@ template:
                     shell: Bash
                     command: |-
                       # Set the repository owner and name.
-                      owner="harness"
-                      repo="delegate"
+                      owner=$owner
+                      repo=$repo
 
                       # Build the request URL.
                       url="https://registry.hub.docker.com/v2/repositories/${owner}/${repo}/tags"
@@ -41,8 +41,8 @@ template:
                       # Parse the response to extract the latest tag.
                       latest_tag=$(echo "${response}" | jq -r --arg datePrefix "$datePrefix" '.results[] | select(.name | contains("minimal") and contains($datePrefix) ) | .name' | head -n 1)
                     envVariables:
-                      owner: <+input>
-                      repo: <+input>
+                      owner: harness
+                      repo: delegate
                     outputVariables:
                       - name: latest_tag
               - step:
