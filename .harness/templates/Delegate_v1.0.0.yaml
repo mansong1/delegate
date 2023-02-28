@@ -136,14 +136,16 @@ template:
               failureStrategies: []
       sharedPaths:
         - /var/run
-      platform:
-        os: Linux
-        arch: Amd64
-      runtime:
-        type: Cloud
-        spec: {}
       service:
         serviceRef: ""
+      infrastructure:
+        type: KubernetesDirect
+        spec:
+          connectorRef: <+input>
+          namespace: <+input>
+          automountServiceAccountToken: true
+          nodeSelector: {}
+          os: Linux
     variables:
       - name: TARGET_REPO
         type: String
