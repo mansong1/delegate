@@ -77,9 +77,12 @@ template:
                   identifier: Generate_SBOM
                   spec:
                     connectorRef: <+stage.variables.CONTAINER_CONNECTOR_REF>
-                    image: mansong/syft
-                    shell: Bash
-                    command: ./syft delegate:local -o github
+                    image: alpine:latest
+                    shell: Sh
+                    command: |-
+                      apk --no-cache add curl
+                      curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b .
+                      ./syft delegate:local -o github
               - step:
                   type: Security
                   name: Aqua
