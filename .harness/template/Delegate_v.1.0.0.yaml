@@ -77,12 +77,9 @@ template:
                   identifier: Generate_SBOM
                   spec:
                     connectorRef: <+stage.variables.CONTAINER_REGISTRY>
-                    image: alpine:latest
+                    image: anchore/syft
                     shell: Sh
-                    command: |-
-                      apk --no-cache add curl
-                      curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b .
-                      ./syft delegate:local -o github
+                    command: ./syft delegate:local -o github
               - step:
                   type: Security
                   name: Aqua
