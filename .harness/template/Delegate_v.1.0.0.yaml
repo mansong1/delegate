@@ -14,7 +14,7 @@ template:
               name: DiND
               identifier: DiND
               spec:
-                connectorRef: <+stage.variables.CONTAINER_REGISTRY>
+                connectorRef: <+stage.variables.CONTAINER_CONNECTOR_REF>
                 image: docker:dind
                 shell: Sh
           - parallel:
@@ -23,7 +23,7 @@ template:
                   name: Set Tag
                   identifier: SetTag
                   spec:
-                    connectorRef: <+stage.variables.CONTAINER_REGISTRY>
+                    connectorRef: <+stage.variables.CONTAINER_CONNECTOR_REF>
                     image: mansong/curl-jq:latest
                     shell: Bash
                     command: |-
@@ -50,7 +50,7 @@ template:
                   name: Check DiND
                   identifier: Check_DiND
                   spec:
-                    connectorRef: <+stage.variables.CONTAINER_REGISTRY>
+                    connectorRef: <+stage.variables.CONTAINER_CONNECTOR_REF>
                     image: bash:latest
                     shell: Bash
                     command: |-
@@ -64,7 +64,7 @@ template:
               name: Build Image
               identifier: Build_Image
               spec:
-                connectorRef: <+stage.variables.CONTAINER_REGISTRY>
+                connectorRef: <+stage.variables.CONTAINER_CONNECTOR_REF>
                 image: docker:dind
                 shell: Sh
                 command: docker build . -t delegate:local --build-arg BASE_IMAGE_TAG=$BASE_IMAGE_TAG
@@ -76,7 +76,7 @@ template:
                   name: Generate SBOM
                   identifier: Generate_SBOM
                   spec:
-                    connectorRef: <+stage.variables.CONTAINER_REGISTRY>
+                    connectorRef: <+stage.variables.CONTAINER_CONNECTOR_REF>
                     image: anchore/syft
                     shell: Sh
                     command: ./syft delegate:local -o github
@@ -118,7 +118,7 @@ template:
               name: Build and Push
               identifier: Push_Image
               spec:
-                connectorRef: <+stage.variables.CONTAINER_REGISTRY>
+                connectorRef: <+stage.variables.CONTAINER_CONNECTOR_REF>
                 image: docker:dind
                 shell: Sh
                 command: |-
