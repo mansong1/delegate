@@ -77,7 +77,7 @@ template:
                   identifier: Generate_SBOM
                   spec:
                     connectorRef: <+stage.variables.CONTAINER_CONNECTOR_REF>
-                    image: anchore/syft
+                    image: mansong/syft
                     shell: Bash
                     command: ./syft delegate:local -o github
               - step:
