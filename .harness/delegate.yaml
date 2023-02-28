@@ -25,7 +25,7 @@ pipeline:
                 value: mansong/delegate
               - name: CONTAINER_CONNECTOR_REF
                 type: String
-                value: org.DockerHub
+                value: org.Dockerhub
     - stage:
         name: Deploy
         identifier: Deploy
