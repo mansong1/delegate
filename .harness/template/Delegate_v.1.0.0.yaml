@@ -119,7 +119,7 @@ template:
               name: Build and Push
               identifier: Push_Image
               spec:
-                connectorRef: org.Dockerhub
+                connectorRef: <+stage.variables.CONTAINER_REGISTRY>
                 image: docker:dind
                 shell: Sh
                 command: |-
