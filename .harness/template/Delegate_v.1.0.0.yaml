@@ -23,7 +23,7 @@ template:
                   name: Set Tag
                   identifier: SetTag
                   spec:
-                    connectorRef: <+input>
+                    connectorRef: <+stage.variables.CONTAINER_REGISTRY>
                     image: mansong/curl-jq:latest
                     shell: Bash
                     command: |-
