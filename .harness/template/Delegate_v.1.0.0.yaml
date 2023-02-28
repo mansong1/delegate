@@ -78,7 +78,7 @@ template:
                   spec:
                     connectorRef: <+stage.variables.CONTAINER_CONNECTOR_REF>
                     image: anchore/syft
-                    shell: Sh
+                    shell: Bash
                     command: ./syft delegate:local -o github
               - step:
                   type: Security
