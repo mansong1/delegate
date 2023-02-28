@@ -17,6 +17,15 @@ pipeline:
         template:
           templateRef: Delegate
           versionLabel: v.1.0.0
+          templateInputs:
+            type: CI
+            variables:
+              - name: TARGET_REPO
+                type: String
+                value: mansong/delegate
+              - name: CONTAINER_CONNECTOR_REF
+                type: String
+                value: org.DockerHub
     - stage:
         name: Deploy
         identifier: Deploy
