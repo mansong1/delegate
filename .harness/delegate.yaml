@@ -25,7 +25,7 @@ pipeline:
                   identifier: SetTag
                   spec:
                     connectorRef: org.Dockerhub
-                    image: mansong/jq.slim:latest
+                    image: mansong/curl-jq:latest
                     shell: Bash
                     command: |-
                       # Set the repository owner and name.
