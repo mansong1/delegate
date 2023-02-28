@@ -127,11 +127,11 @@ template:
                   docker build . -t $TARGET_REPO:$TAG --build-arg BASE_IMAGE_TAG=$BASE_IMAGE_TAG
                   docker push $TARGET_REPO:$TAG
                 envVariables:
-                  DOCKER_PASSWORD: <+input>
+                  DOCKER_USERNAME: <+stage.variables.DOCKER_USERNAME>
+                  DOCKER_PASSWORD: <+stage.variables.DOCKER_PASSWORD>
                   TARGET_REPO: <+stage.variables.TARGET_REPO>
                   TAG: <+pipeline.stages.Build.spec.execution.steps.SetTag.output.outputVariables.latest_tag>
                   BASE_IMAGE_TAG: <+pipeline.stages.Build.spec.execution.steps.SetTag.output.outputVariables.latest_tag>
-                  DOCKER_USERNAME: <+input>
               when:
                 stageStatus: Success
               failureStrategies: []
