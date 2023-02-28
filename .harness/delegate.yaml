@@ -27,30 +27,43 @@ pipeline:
                     connectorRef: account.harnessImage
                     image: docker:dind
                     shell: Sh
-              - step:
-                  type: Run
-                  name: Set Tag
-                  identifier: SetTag
-                  spec:
-                    connectorRef: org.Dockerhub
-                    image: mansong/curl-jq:latest
-                    shell: Bash
-                    command: |-
-                      # Set the repository owner and name.
-                      owner="harness"
-                      repo="delegate"
+              - parallel:
+                  - step:
+                      type: Run
+                      name: Set Tag
+                      identifier: SetTag
+                      spec:
+                        connectorRef: org.Dockerhub
+                        image: mansong/curl-jq:latest
+                        shell: Bash
+                        command: |-
+                          # Set the repository owner and name.
+                          owner="harness"
+                          repo="delegate"
 
-                      # Build the request URL.
-                      url="https://registry.hub.docker.com/v2/repositories/${owner}/${repo}/tags"
+                          # Build the request URL.
+                          url="https://registry.hub.docker.com/v2/repositories/${owner}/${repo}/tags"
 
-                      # Send the GET request and store the response.
-                      response=$(curl -s "${url}")
-                      datePrefix=$(date '+%y.%m')
+                          # Send the GET request and store the response.
+                          response=$(curl -s "${url}")
+                          datePrefix=$(date '+%y.%m')
 
-                      # Parse the response to extract the latest tag.
-                      latest_tag=$(echo "${response}" | jq -r --arg datePrefix "$datePrefix" '.results[] | select(.name | contains("minimal") and contains($datePrefix) ) | .name' | head -n 1)
-                    outputVariables:
-                      - name: latest_tag
+                          # Parse the response to extract the latest tag.
+                          latest_tag=$(echo "${response}" | jq -r --arg datePrefix "$datePrefix" '.results[] | select(.name | contains("minimal") and contains($datePrefix) ) | .name' | head -n 1)
+                        outputVariables:
+                          - name: latest_tag
+                  - step:
+                      type: Run
+                      name: Check DiND
+                      identifier: Check_DiND
+                      spec:
+                        shell: Sh
+                        command: |-
+                          while ! docker ps;
+                              do
+                                  echo "Docker not available yet"
+                              done
+                                  echo "Docker Service Ready"
               - step:
                   type: Run
                   name: Build Image
@@ -128,7 +141,6 @@ pipeline:
                   failureStrategies: []
           sharedPaths:
             - /var/run
-            - /var/lib
           platform:
             os: Linux
             arch: Amd64
