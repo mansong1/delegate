@@ -123,14 +123,15 @@ template:
                 image: docker:dind
                 shell: Sh
                 command: |-
-                  docker login -u mansong -p $PASSWORD
+                  docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
                   docker build . -t $TARGET_REPO:$TAG --build-arg BASE_IMAGE_TAG=$BASE_IMAGE_TAG
                   docker push $TARGET_REPO:$TAG
                 envVariables:
-                  PASSWORD: <+secrets.getValue("account.dockerpwd")>
+                  DOCKER_PASSWORD: <+input>
                   TARGET_REPO: <+stage.variables.TARGET_REPO>
                   TAG: <+pipeline.stages.Build.spec.execution.steps.SetTag.output.outputVariables.latest_tag>
                   BASE_IMAGE_TAG: <+pipeline.stages.Build.spec.execution.steps.SetTag.output.outputVariables.latest_tag>
+                  DOCKER_USERNAME: <+input>
               when:
                 stageStatus: Success
               failureStrategies: []
