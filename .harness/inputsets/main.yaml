@@ -1,0 +1,14 @@
+inputSet:
+  pipeline:
+    identifier: delegate
+    properties:
+      ci:
+        codebase:
+          build:
+            spec:
+              branch: main
+            type: branch
+  name: main
+  identifier: main
+  orgIdentifier: default
+  projectIdentifier: Delegate
