@@ -142,6 +142,7 @@ template:
                     failureStrategies: []
               when:
                 stageStatus: Success
+                condition: <+pipeline.stages.Build.spec.execution.steps.SetTag.output.outputVariables.latest_tag> != ""
               failureStrategies: []
               spec: {}
       sharedPaths:
