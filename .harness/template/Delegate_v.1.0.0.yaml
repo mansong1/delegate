@@ -59,83 +59,87 @@ template:
                               echo "Docker not available yet"
                           done
                               echo "Docker Service Ready"
-          - step:
-              type: Run
-              name: Build Image
-              identifier: Build_Image
-              spec:
-                connectorRef: <+stage.variables.CONTAINER_CONNECTOR_REF>
-                image: docker:dind
-                shell: Sh
-                command: docker build . -t delegate:local --build-arg BASE_IMAGE_TAG=$BASE_IMAGE_TAG
-                envVariables:
-                  BASE_IMAGE_TAG: <+pipeline.stages.Build.spec.execution.steps.SetTag.output.outputVariables.latest_tag>
-          - parallel:
-              - step:
-                  type: Run
-                  name: Generate SBOM
-                  identifier: Generate_SBOM
-                  spec:
-                    connectorRef: <+stage.variables.CONTAINER_CONNECTOR_REF>
-                    image: alpine:latest
-                    shell: Sh
-                    command: |-
-                      apk --no-cache add curl
-                      curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b .
-                      ./syft delegate:local -o github
-              - step:
-                  type: Security
-                  name: Aqua
-                  identifier: Aqua
-                  spec:
-                    privileged: true
-                    settings:
-                      policy_type: orchestratedScan
-                      scan_type: container
-                      product_name: aqua-trivy
-                      product_config_name: aqua-trivy
-                      container_type: local_image
-                      container_domain: docker.io
-                      container_project: delegate
-                      container_tag: local
-                  when:
-                    stageStatus: Success
-                  failureStrategies: []
-              - step:
-                  type: Security
-                  name: Grype
-                  identifier: Grype
-                  spec:
-                    privileged: true
-                    settings:
-                      policy_type: orchestratedScan
-                      scan_type: container
-                      product_name: grype
-                      product_config_name: default
-                      container_type: local_image
-                      container_domain: docker.io
-                      container_project: delegate
-                      container_tag: local
-          - step:
-              type: Run
-              name: Build and Push
-              identifier: Push_Image
-              spec:
-                connectorRef: <+stage.variables.CONTAINER_CONNECTOR_REF>
-                image: docker:dind
-                shell: Sh
-                command: |-
-                  docker login -u mansong -p $PASSWORD
-                  docker build . -t $TARGET_REPO:$TAG --build-arg BASE_IMAGE_TAG=$BASE_IMAGE_TAG
-                  docker push $TARGET_REPO:$TAG
-                envVariables:
-                  PASSWORD: <+secrets.getValue("account.dockerpwd")>
-                  TARGET_REPO: <+stage.variables.TARGET_REPO>
-                  TAG: <+pipeline.stages.Build.spec.execution.steps.SetTag.output.outputVariables.latest_tag>
-                  BASE_IMAGE_TAG: <+pipeline.stages.Build.spec.execution.steps.SetTag.output.outputVariables.latest_tag>
-              when:
-                stageStatus: Success
-              failureStrategies: []
+          - stepGroup:
+              name: Build and Test
+              identifier: Build_and_Test
+              steps:
+                - step:
+                    type: Run
+                    name: Build Image
+                    identifier: Build_Image
+                    spec:
+                      connectorRef: <+stage.variables.CONTAINER_CONNECTOR_REF>
+                      image: docker:dind
+                      shell: Sh
+                      command: docker build . -t delegate:local --build-arg BASE_IMAGE_TAG=$BASE_IMAGE_TAG
+                      envVariables:
+                        BASE_IMAGE_TAG: <+pipeline.stages.Build.spec.execution.steps.SetTag.output.outputVariables.latest_tag>
+                - parallel:
+                    - step:
+                        type: Run
+                        name: Generate SBOM
+                        identifier: Generate_SBOM
+                        spec:
+                          connectorRef: <+stage.variables.CONTAINER_CONNECTOR_REF>
+                          image: alpine:latest
+                          shell: Sh
+                          command: |-
+                            apk --no-cache add curl
+                            curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b .
+                            ./syft delegate:local -o github
+                    - step:
+                        type: Security
+                        name: Aqua
+                        identifier: Aqua
+                        spec:
+                          privileged: true
+                          settings:
+                            policy_type: orchestratedScan
+                            scan_type: container
+                            product_name: aqua-trivy
+                            product_config_name: aqua-trivy
+                            container_type: local_image
+                            container_domain: docker.io
+                            container_project: delegate
+                            container_tag: local
+                        when:
+                          stageStatus: Success
+                        failureStrategies: []
+                    - step:
+                        type: Security
+                        name: Grype
+                        identifier: Grype
+                        spec:
+                          privileged: true
+                          settings:
+                            policy_type: orchestratedScan
+                            scan_type: container
+                            product_name: grype
+                            product_config_name: default
+                            container_type: local_image
+                            container_domain: docker.io
+                            container_project: delegate
+                            container_tag: local
+                - step:
+                    type: Run
+                    name: Build and Push
+                    identifier: Push_Image
+                    spec:
+                      connectorRef: <+stage.variables.CONTAINER_CONNECTOR_REF>
+                      image: docker:dind
+                      shell: Sh
+                      command: |-
+                        docker login -u mansong -p $PASSWORD
+                        docker build . -t $TARGET_REPO:$TAG --build-arg BASE_IMAGE_TAG=$BASE_IMAGE_TAG
+                        docker push $TARGET_REPO:$TAG
+                      envVariables:
+                        PASSWORD: <+secrets.getValue("account.dockerpwd")>
+                        TARGET_REPO: <+stage.variables.TARGET_REPO>
+                        TAG: <+pipeline.stages.Build.spec.execution.steps.SetTag.output.outputVariables.latest_tag>
+                        BASE_IMAGE_TAG: <+pipeline.stages.Build.spec.execution.steps.SetTag.output.outputVariables.latest_tag>
+                    when:
+                      stageStatus: Success
+                    failureStrategies: []
       sharedPaths:
         - /var/run
       platform:
