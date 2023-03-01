@@ -140,6 +140,10 @@ template:
                     when:
                       stageStatus: Success
                     failureStrategies: []
+              when:
+                stageStatus: Success
+              failureStrategies: []
+              spec: {}
       sharedPaths:
         - /var/run
       platform:
