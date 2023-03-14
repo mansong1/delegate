@@ -62,7 +62,8 @@ RUN git clone --depth=1 https://github.com/tfutils/tfenv.git ~/.tfenv \
 
 RUN TERRAFORM_VERSIONS="1.3.7 1.3.8 1.3.9" \
     sh -c "for version in \$TERRAFORM_VERSIONS; do tfenv install \$version; done" \
-    echo 1.3.7 > ~/.tfenv/version
+    echo 1.3.7 > ~/.tfenv/version \
+    && tfenv install latest
 
 # Install tgswitch and Terragrunt
 RUN curl -L https://raw.githubusercontent.com/warrensbox/tgswitch/release/install.sh | bash \
