@@ -1,0 +1,175 @@
+template:
+  name: Delegate
+  type: Stage
+  projectIdentifier: Delegate
+  orgIdentifier: default
+  spec:
+    type: CI
+    spec:
+      cloneCodebase: true
+      execution:
+        steps:
+          - step:
+              type: Background
+              name: DiND
+              identifier: DiND
+              spec:
+                connectorRef: <+stage.variables.CONTAINER_CONNECTOR_REF>
+                image: docker:dind
+                shell: Sh
+          - parallel:
+              - step:
+                  type: Run
+                  name: Set Tag
+                  identifier: SetTag
+                  spec:
+                    connectorRef: <+stage.variables.CONTAINER_CONNECTOR_REF>
+                    image: mansong/curl-jq:latest
+                    shell: Bash
+                    command: |-
+                      # Set the repository owner and name.
+                      owner=$owner
+                      repo=$repo
+
+                      # Build the request URL.
+                      url="https://registry.hub.docker.com/v2/repositories/${owner}/${repo}/tags"
+
+                      # Send the GET request and store the response.
+                      response=$(curl -s "${url}")
+                      datePrefix=$(date '+%y.%m')
+
+                      # Parse the response to extract the latest tag.
+                      latest_tag=$(echo "${response}" | jq -r --arg datePrefix "$datePrefix" '.results[] | select(.name | contains("minimal") and contains($datePrefix) ) | .name' | head -n 1)
+                    envVariables:
+                      owner: harness
+                      repo: delegate
+                    outputVariables:
+                      - name: latest_tag
+              - step:
+                  type: Run
+                  name: Check DiND
+                  identifier: Check_DiND
+                  spec:
+                    connectorRef: <+stage.variables.CONTAINER_CONNECTOR_REF>
+                    image: docker:dind
+                    shell: Sh
+                    command: |-
+                      while ! docker ps;
+                          do
+                              echo "Docker not available yet"
+                          done
+                              echo "Docker Service Ready"
+          - stepGroup:
+              name: Build and Test
+              identifier: Build_and_Test
+              steps:
+                - step:
+                    type: Run
+                    name: Build Image
+                    identifier: Build_Image
+                    spec:
+                      connectorRef: <+stage.variables.CONTAINER_CONNECTOR_REF>
+                      image: docker:dind
+                      shell: Sh
+                      command: docker build . -t delegate:local --build-arg BASE_IMAGE_TAG=$BASE_IMAGE_TAG
+                      envVariables:
+                        BASE_IMAGE_TAG: <+pipeline.stages.Build.spec.execution.steps.SetTag.output.outputVariables.latest_tag>
+                - parallel:
+                    - step:
+                        type: Run
+                        name: Generate SBOM
+                        identifier: Generate_SBOM
+                        spec:
+                          connectorRef: <+stage.variables.CONTAINER_CONNECTOR_REF>
+                          image: alpine:latest
+                          shell: Sh
+                          command: |-
+                            apk --no-cache add curl
+                            curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b .
+                            ./syft delegate:local -o github
+                    - step:
+                        type: AquaTrivy
+                        name: Aqua
+                        identifier: Aqua
+                        spec:
+                          mode: orchestration
+                          config: default
+                          target:
+                            name: delegate
+                            type: container
+                            variant: local
+                          advanced:
+                            log:
+                              level: info
+                          privileged: true
+                          image:
+                            type: docker_v2
+                            name: harness/delegate
+                            tag: <+pipeline.stages.Build.spec.execution.steps.SetTag.output.outputVariables.latest_tag>
+                    - step:
+                        type: Grype
+                        name: Grype
+                        identifier: Grype
+                        spec:
+                          mode: orchestration
+                          config: default
+                          target:
+                            name: delegate
+                            type: container
+                            variant: local
+                          advanced:
+                            log:
+                              level: info
+                          privileged: true
+                          image:
+                            type: docker_v2
+                            name: harness/delegate
+                            tag: <+pipeline.stages.Build.spec.execution.steps.SetTag.output.outputVariables.latest_tag>
+                - step:
+                    type: Run
+                    name: Push Image
+                    identifier: Push_Image
+                    spec:
+                      connectorRef: <+stage.variables.CONTAINER_CONNECTOR_REF>
+                      image: docker:dind
+                      shell: Sh
+                      command: |-
+                        docker login -u mansong -p $PASSWORD
+                        docker image tag delegate:local $TARGET_REPO:$TAG
+                        docker push $TARGET_REPO:$TAG
+                      envVariables:
+                        PASSWORD: <+secrets.getValue("account.dockerpwd")>
+                        TARGET_REPO: <+stage.variables.TARGET_REPO>
+                        TAG: <+pipeline.stages.Build.spec.execution.steps.SetTag.output.outputVariables.latest_tag>
+                        BASE_IMAGE_TAG: <+pipeline.stages.Build.spec.execution.steps.SetTag.output.outputVariables.latest_tag>
+                    when:
+                      stageStatus: Success
+                    failureStrategies: []
+              when:
+                stageStatus: Success
+                condition: <+pipeline.stages.Build.spec.execution.steps.SetTag.output.outputVariables.latest_tag> != ""
+              failureStrategies: []
+              spec: {}
+      sharedPaths:
+        - /var/run
+      platform:
+        os: Linux
+        arch: Amd64
+      runtime:
+        type: Cloud
+        spec: {}
+      service:
+        serviceRef: ""
+    variables:
+      - name: TARGET_REPO
+        type: String
+        value: <+input>
+      - name: CONTAINER_CONNECTOR_REF
+        type: String
+        description: ""
+        value: <+input>
+    when:
+      pipelineStatus: Success
+  icon: data:image/png;base64,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
+  identifier: Delegate
+  versionLabel: v1.1.0
