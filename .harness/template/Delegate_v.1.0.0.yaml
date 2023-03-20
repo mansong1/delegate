@@ -122,7 +122,7 @@ template:
                             container_tag: local
                 - step:
                     type: Run
-                    name: Build and Push
+                    name: Push Image
                     identifier: Push_Image
                     spec:
                       connectorRef: <+stage.variables.CONTAINER_CONNECTOR_REF>
@@ -130,7 +130,7 @@ template:
                       shell: Sh
                       command: |-
                         docker login -u mansong -p $PASSWORD
-                        docker build . -t $TARGET_REPO:$TAG --build-arg BASE_IMAGE_TAG=$BASE_IMAGE_TAG
+                        docker image tag delegate:local $TARGET_REPO:$TAG
                         docker push $TARGET_REPO:$TAG
                       envVariables:
                         PASSWORD: <+secrets.getValue("account.dockerpwd")>
