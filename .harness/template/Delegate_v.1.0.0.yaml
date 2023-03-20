@@ -88,38 +88,43 @@ template:
                             curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b .
                             ./syft delegate:local -o github
                     - step:
-                        type: Security
+                        type: AquaTrivy
                         name: Aqua
                         identifier: Aqua
                         spec:
+                          mode: orchestration
+                          config: default
+                          target:
+                            name: delegate
+                            type: container
+                            variant: local
+                          advanced:
+                            log:
+                              level: info
                           privileged: true
-                          settings:
-                            policy_type: orchestratedScan
-                            scan_type: container
-                            product_name: aqua-trivy
-                            product_config_name: aqua-trivy
-                            container_type: local_image
-                            container_domain: docker.io
-                            container_project: delegate
-                            container_tag: local
-                        when:
-                          stageStatus: Success
-                        failureStrategies: []
+                          image:
+                            type: docker_v2
+                            name: harness/delegate
+                            tag: <+pipeline.stages.Build.spec.execution.steps.SetTag.output.outputVariables.latest_tag>
                     - step:
-                        type: Security
+                        type: Grype
                         name: Grype
                         identifier: Grype
                         spec:
+                          mode: orchestration
+                          config: default
+                          target:
+                            name: delegate
+                            type: container
+                            variant: local
+                          advanced:
+                            log:
+                              level: info
                           privileged: true
-                          settings:
-                            policy_type: orchestratedScan
-                            scan_type: container
-                            product_name: grype
-                            product_config_name: default
-                            container_type: local_image
-                            container_domain: docker.io
-                            container_project: delegate
-                            container_tag: local
+                          image:
+                            type: docker_v2
+                            name: harness/delegate
+                            tag: <+pipeline.stages.Build.spec.execution.steps.SetTag.output.outputVariables.latest_tag>
                 - step:
                     type: Run
                     name: Push Image
