@@ -105,7 +105,6 @@ template:
                           image:
                             type: docker_v2
                             name: harness/delegate
-                            domain: <+input>
                             tag: <+pipeline.stages.Build.spec.execution.steps.SetTag.output.outputVariables.latest_tag>
                     - step:
                         type: Grype
