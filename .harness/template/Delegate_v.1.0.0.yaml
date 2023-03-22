@@ -26,7 +26,7 @@ template:
                     connectorRef: <+stage.variables.CONTAINER_CONNECTOR_REF>
                     image: mansong/curl-jq:latest
                     shell: Bash
-                    command: |+
+                    command: |-
                       # Set the repository owner and name.
                       owner=$owner
                       repo=$repo
@@ -40,7 +40,6 @@ template:
 
                       # Parse the response to extract the latest tag.
                       latest_tag=$(echo "${response}" | jq -r --arg datePrefix "$datePrefix" '.results[] | select(.name | contains("minimal") and contains($datePrefix) ) | .name' | head -n 1)
-
                     envVariables:
                       owner: harness
                       repo: delegate
