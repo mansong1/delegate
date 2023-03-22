@@ -87,6 +87,7 @@ template:
                             apk --no-cache add curl
                             curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b .
                             ./syft delegate:local -o github
+                          privileged: true
                     - step:
                         type: AquaTrivy
                         name: Aqua
