@@ -127,31 +127,31 @@ template:
                             type: docker_v2
                             name: harness/delegate
                             tag: <+pipeline.stages.Build.spec.execution.steps.SetTag.output.outputVariables.latest_tag>
-                - step:
-                    type: Run
-                    name: Push Image
-                    identifier: Push_Image
-                    spec:
-                      connectorRef: <+stage.variables.CONTAINER_CONNECTOR_REF>
-                      image: docker:dind
-                      shell: Sh
-                      command: |-
-                        docker login -u mansong -p $PASSWORD
-                        docker image tag delegate:local $TARGET_REPO:$TAG
-                        docker push $TARGET_REPO:$TAG
-                      envVariables:
-                        PASSWORD: <+secrets.getValue("account.dockerpwd")>
-                        TARGET_REPO: <+stage.variables.TARGET_REPO>
-                        TAG: <+pipeline.stages.Build.spec.execution.steps.SetTag.output.outputVariables.latest_tag>
-                        BASE_IMAGE_TAG: <+pipeline.stages.Build.spec.execution.steps.SetTag.output.outputVariables.latest_tag>
-                    when:
-                      stageStatus: Success
-                    failureStrategies: []
               when:
                 stageStatus: Success
                 condition: <+pipeline.stages.Build.spec.execution.steps.SetTag.output.outputVariables.latest_tag> != ""
               failureStrategies: []
               spec: {}
+          - step:
+              type: Run
+              name: Push Image
+              identifier: Push_Image
+              spec:
+                connectorRef: <+stage.variables.CONTAINER_CONNECTOR_REF>
+                image: docker:dind
+                shell: Sh
+                command: |-
+                  docker login -u mansong -p $PASSWORD
+                  docker image tag delegate:local $TARGET_REPO:$TAG
+                  docker push $TARGET_REPO:$TAG
+                envVariables:
+                  PASSWORD: <+secrets.getValue("account.dockerpwd")>
+                  TARGET_REPO: <+stage.variables.TARGET_REPO>
+                  TAG: <+pipeline.stages.Build.spec.execution.steps.SetTag.output.outputVariables.latest_tag>
+                  BASE_IMAGE_TAG: <+pipeline.stages.Build.spec.execution.steps.SetTag.output.outputVariables.latest_tag>
+              when:
+                stageStatus: Success
+              failureStrategies: []
       sharedPaths:
         - /var/run
       platform:
