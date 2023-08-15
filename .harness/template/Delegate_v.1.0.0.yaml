@@ -150,6 +150,26 @@ template:
                 condition: <+pipeline.stages.Build.spec.execution.steps.SetTag.output.outputVariables.latest_tag> != ""
               failureStrategies: []
               spec: {}
+          - step:
+              type: SscaOrchestration
+              name: Generate SBOM
+              identifier: SscaOrchestration_1
+              spec:
+                tool:
+                  type: Syft
+                  spec:
+                    format: spdx-json
+                attestation:
+                  type: cosign
+                source:
+                  type: image
+                  spec:
+                    connector: org.Dockerhub
+                    image: <+stage.variables.TARGET_REPO>
+                resources:
+                  limits:
+                    memory: 500Mi
+                    cpu: "0.5"
       sharedPaths:
         - /var/run
       platform:
