@@ -160,6 +160,9 @@ template:
                     format: spdx-json
                 attestation:
                   type: cosign
+                  spec:
+                    privateKey: CosignKey
+                    password: CosignPassword
                 source:
                   type: image
                   spec:
