@@ -151,8 +151,8 @@ template:
               spec: {}
           - step:
               type: SscaOrchestration
-              name: Generate SBOM
-              identifier: SscaOrchestration_1
+              name: Generate SBOM Attestation
+              identifier: Generate_SBOM_Attestation
               spec:
                 tool:
                   type: Syft
