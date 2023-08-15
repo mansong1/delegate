@@ -126,6 +126,29 @@ template:
                             name: harness/delegate
                             tag: <+pipeline.stages.Build.spec.execution.steps.SetTag.output.outputVariables.latest_tag>
                 - step:
+                    type: SscaOrchestration
+                    name: Generate SBOM Attestation
+                    identifier: Generate_SBOM_Attestation
+                    spec:
+                      tool:
+                        type: Syft
+                        spec:
+                          format: spdx-json
+                      attestation:
+                        type: cosign
+                        spec:
+                          privateKey: CosignKey
+                          password: CosignPassword
+                      source:
+                        type: image
+                        spec:
+                          connector: org.Dockerhub
+                          image: delegate:local
+                      resources:
+                        limits:
+                          memory: 500Mi
+                          cpu: "0.5"
+                - step:
                     type: Run
                     name: Push Image
                     identifier: Push_Image
@@ -149,29 +172,6 @@ template:
                 condition: <+pipeline.stages.Build.spec.execution.steps.SetTag.output.outputVariables.latest_tag> != ""
               failureStrategies: []
               spec: {}
-          - step:
-              type: SscaOrchestration
-              name: Generate SBOM Attestation
-              identifier: Generate_SBOM_Attestation
-              spec:
-                tool:
-                  type: Syft
-                  spec:
-                    format: spdx-json
-                attestation:
-                  type: cosign
-                  spec:
-                    privateKey: CosignKey
-                    password: CosignPassword
-                source:
-                  type: image
-                  spec:
-                    connector: org.Dockerhub
-                    image: <+stage.variables.TARGET_REPO>:<+pipeline.stages.Build.spec.execution.steps.SetTag.output.outputVariables.latest_tag>
-                resources:
-                  limits:
-                    memory: 500Mi
-                    cpu: "0.5"
       sharedPaths:
         - /var/run
       platform:
