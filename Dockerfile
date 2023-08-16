@@ -36,8 +36,7 @@ RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2
     && rm -rf awscliv2.zip
 
 # Install serverless framework
-RUN curl -o- -L https://slss.io/install | bash \
-    && ln -s ~/.serverless/bin/* /usr/local/bin
+RUN npm install -g serverless
 
 # Install AWS SAM CLI
 RUN curl -L https://github.com/aws/aws-sam-cli/releases/latest/download/aws-sam-cli-linux-x86_64.zip -o aws-sam-cli-linux-x86_64.zip \
