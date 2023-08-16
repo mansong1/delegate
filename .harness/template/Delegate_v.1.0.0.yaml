@@ -186,6 +186,9 @@ template:
         spec: {}
       service:
         serviceRef: ""
+      caching:
+        enabled: true
+        paths: []
     variables:
       - name: TARGET_REPO
         type: String
