@@ -147,7 +147,7 @@ template:
                         type: image
                         spec:
                           connector: org.Dockerhub
-                          image: delegate:local
+                          image: delegate@<+pipeline.stages.Build.spec.execution.steps.Build_and_Test.steps.Build_Image.output.outputVariables.dockerSha>
                       resources:
                         limits:
                           memory: 500Mi
