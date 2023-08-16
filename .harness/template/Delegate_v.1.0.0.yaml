@@ -71,9 +71,13 @@ template:
                       connectorRef: <+stage.variables.CONTAINER_CONNECTOR_REF>
                       image: docker:dind
                       shell: Sh
-                      command: docker build . -t delegate:local --build-arg BASE_IMAGE_TAG=$BASE_IMAGE_TAG
+                      command: |-
+                        docker build . -t delegate:local --build-arg BASE_IMAGE_TAG=$BASE_IMAGE_TAG
+                        dockerSha=$(docker inspect --format='{{index .RepoDigests 0}}')
                       envVariables:
                         BASE_IMAGE_TAG: <+pipeline.stages.Build.spec.execution.steps.SetTag.output.outputVariables.latest_tag>
+                      outputVariables:
+                        - name: dockerSha
                 - parallel:
                     - step:
                         type: Run
