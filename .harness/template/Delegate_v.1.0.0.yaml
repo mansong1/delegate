@@ -164,8 +164,8 @@ template:
                 attestation:
                   type: cosign
                   spec:
-                    privateKey: CosignKey
-                    password: CosignPassword
+                    privateKey: KD_Cosign_Pvt_Key
+                    password: KD_Cosign_PWD
                 source:
                   type: image
                   spec:
