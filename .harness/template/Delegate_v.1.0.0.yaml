@@ -73,7 +73,7 @@ template:
                       shell: Sh
                       command: |-
                         docker build . -t delegate:local --build-arg BASE_IMAGE_TAG=$BASE_IMAGE_TAG
-                        dockerSha=$(docker inspect --format='\{{index .RepoDigests 0}}\' delegate:local)
+                        dockerSha=$(docker inspect --format="{{index .RepoDigests 0}}" delegate:local)
                       envVariables:
                         BASE_IMAGE_TAG: <+pipeline.stages.Build.spec.execution.steps.SetTag.output.outputVariables.latest_tag>
                       outputVariables:
