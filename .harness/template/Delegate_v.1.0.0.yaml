@@ -73,7 +73,7 @@ template:
                       shell: Sh
                       command: |-
                         docker build . -t delegate:local --build-arg BASE_IMAGE_TAG=$BASE_IMAGE_TAG
-                        dockerSha=$(docker images --no-trunc --quiet delegate:local)
+                        #dockerSha=$(docker images --no-trunc --quiet delegate:local)
                       envVariables:
                         BASE_IMAGE_TAG: <+pipeline.stages.Build.spec.execution.steps.SetTag.output.outputVariables.latest_tag>
                       outputVariables:
@@ -147,7 +147,7 @@ template:
                         type: image
                         spec:
                           connector: org.Dockerhub
-                          image: delegate@<+pipeline.stages.Build.spec.execution.steps.Build_and_Test.steps.Build_Image.output.outputVariables.dockerSha>
+                          image: delegate:local
                       resources:
                         limits:
                           memory: 500Mi
