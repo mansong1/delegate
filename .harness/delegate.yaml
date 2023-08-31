@@ -58,6 +58,42 @@ pipeline:
                               count: 1
                           skipDryRun: false
                     - step:
+                        type: Verify
+                        name: Verify
+                        identifier: Verify
+                        spec:
+                          isMultiServicesOrEnvs: false
+                          type: Canary
+                          monitoredService:
+                            type: Default
+                            spec: {}
+                          spec:
+                            sensitivity: MEDIUM
+                            duration: 5m
+                            deploymentTag: <+artifacts.primary.tag>
+                        timeout: 2h
+                        failureStrategies:
+                          - onFailure:
+                              errors:
+                                - Verification
+                              action:
+                                type: ManualIntervention
+                                spec:
+                                  timeout: 2h
+                                  onTimeout:
+                                    action:
+                                      type: StageRollback
+                          - onFailure:
+                              errors:
+                                - Unknown
+                              action:
+                                type: ManualIntervention
+                                spec:
+                                  timeout: 2h
+                                  onTimeout:
+                                    action:
+                                      type: Ignore
+                    - step:
                         name: Canary Delete
                         identifier: canaryDelete
                         type: K8sCanaryDelete
