@@ -30,7 +30,7 @@ spec:
           description: Unique name for new VM (max:18 characters)
           maxLength: 18
           pattern: '^([a-zA-Z][a-zA-Z0-9]*)(-[a-zA-Z0-9]+)*$'
-  - title: Approvers
+   - title: Approvers
       properties:
         AWS_Account:
           title: Select an AWS Cloud Account
