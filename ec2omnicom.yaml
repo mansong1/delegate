@@ -1,0 +1,89 @@
+# SE - Create a VM
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: iacm_provision_VM
+  title: Provision EC2 VM Instance
+  description: Self-service offering for creating VM instances. Uses Harness IACM Pipeline to orchestrate provisioning on the backend. 
+  tags:
+    - beta
+    - demo
+spec:
+  owner: user:default/martin.ansong
+  type: resource
+  parameters:
+    - title: Instance Details
+      required:
+        - instance_name
+      properties:
+        AWS_Account:
+          title: Select an AWS Cloud Account
+          type: string
+          enum:
+            - Engineering (10234524)
+            - Research (82342343)
+            - DevOps (92347823)
+          ui:widget: radio
+        instance_name:
+          title: VM Instance Name
+          type: string
+          description: Unique name for new VM (max:18 characters)
+          maxLength: 18
+          pattern: '^([a-zA-Z][a-zA-Z0-9]*)(-[a-zA-Z0-9]+)*$'
+  - title: Approvers
+      properties:
+        AWS_Account:
+          title: Select an AWS Cloud Account
+          type: string
+          enum:
+            - joe.blog
+            - macklin.loughrey
+            - daniel.reznick
+    - title: Instance Details
+      properties:
+        compute_class:
+          title: Compute Class
+          type: string
+          description: Select a family of compute class for this VM
+          default: t3
+          enum: 
+            - t3
+            - m5
+            - r5
+        ram_size:
+          title: Instance Size
+          type: number
+          description: RAM (default:2)
+          default: 2
+          enum:
+            - 2
+            - 4
+            - 8
+        cpu_size:
+          title: vCPUs
+          type: number
+          description: Type of ingress controller (default:1)
+          enum:
+            - 1
+            - 2
+          default: 1
+        token:
+          title: Harness Token
+          type: string
+          ui:widget: password
+          ui:field: HarnessAuthToken
+  steps:
+    - id: trigger
+      name: Requesting Your New VM Instance
+      action: trigger:harness-custom-pipeline
+      input:
+        url: https://app.harness.io/ng/account/EeRjnXTnS4GrLG5VNNJZUw/module/iacm/orgs/demo/projects/Reference_Architecture/pipelines/IaCM_Provision_EC2_Instance/pipeline-studio/?storeType=REMOTE&connectorRef=&repoName=terraform-aws-ec2-instance&branch=martin-test
+        inputset:
+          cloud_provider: ${{ parameters.cloud_provider }}
+          instance_name: ${{ parameters.instance_name }}
+          requestor_name: ${{ user.entity.metadata.name }}
+        apikey: ${{ parameters.token }}
+  output:
+    links:
+      - title: Pipeline Details
+        url: ${{ steps.trigger.output.PipelineUrl }}
