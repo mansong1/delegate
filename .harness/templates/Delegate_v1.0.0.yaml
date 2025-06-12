@@ -30,7 +30,7 @@ template:
                       repo=$repo
 
                       # Build the request URL.
-                      url="https://registry.hub.docker.com/v2/repositories/${owner}/${repo}/tags/latest"
+                      url="https://registry.hub.docker.com/v2/repositories/${owner}/${repo}/tags"
 
                       # Send the GET request and store the response.
                       response=$(curl -s "${url}")
@@ -43,6 +43,8 @@ template:
                       repo: delegate
                     outputVariables:
                       - name: latest_tag
+                        type: String
+                        value: latest_tag
               - step:
                   type: Run
                   name: Check DiND
