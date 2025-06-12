@@ -40,7 +40,7 @@ template:
                       datePrefix=$(date '+%y.%m')
 
                       # Parse the response to extract the latest tag.
-                      latest_tag=$(echo "${response}" | jq -r '.results |
+                      export latest_tag=$(echo "${response}" | jq -r '.results |
                         map(select(
                           .type == "object" and
                           (.name | type == "string" and contains("minimal")) and
