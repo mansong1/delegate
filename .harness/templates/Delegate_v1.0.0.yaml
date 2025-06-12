@@ -30,7 +30,7 @@ template:
                       repo=$repo
 
                       # Build the request URL.
-                      url="https://registry.hub.docker.com/v2/repositories/${owner}/${repo}/tags"
+                      url="https://registry.hub.docker.com/v2/repositories/${owner}/${repo}/tags/latest"
 
                       # Send the GET request and store the response.
                       response=$(curl -s "${url}")
