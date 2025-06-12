@@ -34,21 +34,30 @@ template:
                       # Build the request URL.
                       url="https://registry.hub.docker.com/v2/repositories/${owner}/${repo}/tags/?page_size=100&ordering=last_updated"
 
-                      # Send the GET request and store the response.
-                      echo "Fetching tags from: ${url}"
-                      response=$(curl -s "${url}")
-                      datePrefix=$(date '+%y.%m')
+                      response=$(curl -s "$url")
 
-                      # Parse the response to extract the latest tag.
-                      export latest_tag=$(echo "${response}" | jq -r '.results |
-                        map(select(
-                          .type == "object" and
-                          (.name | type == "string" and contains("minimal")) and
-                          (.last_updated | type == "string")
-                        )) |
-                        sort_by(.last_updated) | reverse | .[0].name // empty')
+                      # If 'response' is empty, the output of this script will be empty.
+                      echo "API Response:"
+                      echo "${response}" | jq '.'
 
-                      echo "$latest_tag"
+                      echo "Checking for tags containing 'minimal':"
+                      echo "Matching minimal tags:"
+                      echo "$response" | jq -r '
+                        .results[]
+                        | select(.name | type == "string" and contains("minimal"))
+                        | "\(.name) - \(.last_updated)"'
+                      latest_tag=$(echo "$response" | jq -r '
+                        .results
+                        | map(select(
+                            (.name | type == "string" and contains("minimal")) and
+                            (.last_updated | type == "string")
+                          ))
+                        | sort_by(.last_updated)
+                        | reverse
+                        | .[0].name // empty
+                      ')
+
+                      echo "Latest tag containing 'minimal': $latest_tag"
                     envVariables:
                       owner: harness
                       repo: delegate
