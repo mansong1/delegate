@@ -1,0 +1,32 @@
+trigger:
+  name: main
+  identifier: main
+  enabled: true
+  description: ""
+  tags: {}
+  encryptedWebhookSecretIdentifier: ""
+  orgIdentifier: default
+  projectIdentifier: Delegate
+  pipelineIdentifier: delegate
+  source:
+    type: Webhook
+    spec:
+      type: Github
+      spec:
+        type: Push
+        spec:
+          connectorRef: account.Github
+          autoAbortPreviousExecutions: false
+          payloadConditions:
+            - key: changedFiles
+              operator: NotIn
+              value: ./harness
+            - key: targetBranch
+              operator: Equals
+              value: main
+          headerConditions: []
+          repoName: delegate
+          actions: []
+  pipelineBranchName: <+trigger.branch>
+  inputSetRefs:
+    - main

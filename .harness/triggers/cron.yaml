@@ -1,0 +1,17 @@
+trigger:
+  name: cron
+  identifier: cron
+  enabled: true
+  tags: {}
+  orgIdentifier: default
+  projectIdentifier: Delegate
+  pipelineIdentifier: delegate
+  source:
+    type: Scheduled
+    spec:
+      type: Cron
+      spec:
+        expression: 0 1 * * *
+  pipelineBranchName: main
+  inputSetRefs:
+    - main
