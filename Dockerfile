@@ -50,8 +50,8 @@ RUN curl https://sdk.cloud.google.com > install.sh && \
     rm -rf install.sh
 
 # Install Azure CLI
-RUN pip3.8 install --upgrade pip \
-    && pip3.8 --no-cache-dir install --pre azure-cli
+RUN pip3 install --upgrade pip \
+    && pip3 install --no-cache-dir --pre azure-cli
 
 # Install tfenv and Terraform
 RUN git clone --depth=1 https://github.com/tfutils/tfenv.git ~/.tfenv \
