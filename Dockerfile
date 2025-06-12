@@ -14,7 +14,7 @@ USER root
 
 ENV NODEJS_VERSION=20
 
-ENV PACKAGES="sudo git wget unzip tar python38 jq which nodejs"
+ENV PACKAGES="sudo git wget unzip tar python3 jq which nodejs"
 
 ENV KUBECTL_VERSION="v1.30.13"
 
