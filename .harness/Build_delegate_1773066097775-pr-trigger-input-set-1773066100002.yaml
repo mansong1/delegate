@@ -1,0 +1,14 @@
+inputSet:
+  name: Build_delegate_1773066097775-pr-trigger-input-set
+  identifier: Build_delegate_1773066097775prtriggerinputset
+  orgIdentifier: bofaharnessdev
+  projectIdentifier: NEW_Project
+  pipeline:
+    identifier: Build_delegate_1773066097775
+    properties:
+      ci:
+        codebase:
+          build:
+            type: PR
+            spec:
+              number: <+trigger.prNumber>
